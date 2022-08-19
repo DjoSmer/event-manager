@@ -1,15 +1,24 @@
 //base source see https://github.com/reduxjs/react-redux/blob/720f0ba79236cdc3e1115f4ef9a7760a21784b48/src/utils/Subscription.ts
 
-export type VoidFunc = (...args: any[]) => void;
+export type VoidFunc = () => void;
+export type ListenerFunc = (...args: any[]) => void;
 
-export type Listener<CB extends VoidFunc> = {
+export type Listener<CB> = {
   callback: CB;
   next: Listener<CB> | null;
   prev: Listener<CB> | null;
   once: boolean;
 };
 
-export function createListenerCollection<CB extends VoidFunc>() {
+export interface ListenerCollection<CB> {
+  clear: VoidFunc;
+  notify: ListenerFunc;
+  get: () => Listener<CB>[];
+  subscribe: (callback: CB, once?: boolean) => VoidFunc;
+  unsubscribe: (callback: CB) => boolean;
+}
+
+export function createListenerCollection<CB extends ListenerFunc>() {
   let first: Listener<CB> | null = null;
   let last: Listener<CB> | null = null;
 
@@ -86,24 +95,33 @@ export function createListenerCollection<CB extends VoidFunc>() {
     }
   };
 
-  return {
+  const collection: ListenerCollection<CB> = {
     clear,
     notify,
     get,
     subscribe,
     unsubscribe,
   };
+
+  return collection;
 }
 
-export type ListenerCollection<CB extends VoidFunc> = ReturnType<
-  typeof createListenerCollection<CB>
->;
+export interface EventManager<CB extends ListenerFunc> {
+  addListener: (eventName: string, callback: CB, once?: boolean) => VoidFunc;
+  removeListener: (eventName: string, callback: CB) => void;
+  removeAllListeners: VoidFunc;
+  emit: (eventName: string, ...args: any[]) => void;
+  once: (eventName: string, callback: CB) => void;
+  getEvents: () => Events<CB>;
+  on: EventManager<CB>['addListener'];
+  off: EventManager<CB>['removeListener'];
+}
 
-export type Events<CB extends VoidFunc> = {
+export type Events<CB extends ListenerFunc> = {
   [k: string]: ListenerCollection<CB>;
 };
 
-export function createEventManager<CB extends VoidFunc>() {
+export function createEventManager<CB extends ListenerFunc>() {
   let events: Events<CB> = {};
 
   const addListener = (eventName: string, callback: CB, once = false) => {
@@ -139,7 +157,7 @@ export function createEventManager<CB extends VoidFunc>() {
 
   const getEvents = () => events;
 
-  return {
+  const eventManager: EventManager<CB> = {
     on: addListener,
     off: removeListener,
     addListener,
@@ -149,4 +167,6 @@ export function createEventManager<CB extends VoidFunc>() {
     once,
     getEvents,
   };
+
+  return eventManager;
 }
