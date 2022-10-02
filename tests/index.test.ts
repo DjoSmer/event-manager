@@ -41,7 +41,7 @@ describe('ListenerCollection', () => {
   });
 
   describe('notify with args and unsubscribe', () => {
-    const listener = createListenerCollection();
+    const listener = createListenerCollection<[string, string]>();
     const handle = jest.fn();
 
     it('one subscribe and notify', () => {
@@ -54,13 +54,13 @@ describe('ListenerCollection', () => {
       const result = listener.unsubscribe(handle);
       expect(result).toBeTruthy();
 
-      listener.notify();
+      listener.notify('param1', 'param2');
       expect(handle).toHaveBeenCalledTimes(1);
     });
   });
 
   it('call order with few args', () => {
-    const listener = createListenerCollection();
+    const listener = createListenerCollection<[string, string]>();
     const callOrder = [];
     const handle = jest.fn(() => callOrder.push(1));
     const handle2 = jest.fn(() => callOrder.push(2));
@@ -116,7 +116,7 @@ describe('EventManager', () => {
   });
 
   describe('emit and removeListener', () => {
-    const manager = createEventManager();
+    const manager = createEventManager<[string, string]>();
     const handle = jest.fn();
 
     it('run emit with few args', () => {

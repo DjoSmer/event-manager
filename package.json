@@ -1,7 +1,7 @@
 {
   "name": "@djosmer/event-manager",
-  "description": "",
-  "version": "1.0.1",
+  "description": "Use Event Manager or create Listener and subscribe to it.",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "dependencies": {},
@@ -29,9 +29,12 @@
   },
   "keywords": [
     "events",
+    "eventemitter",
     "event-manager",
     "event-emitter",
-    "dispatcher"
+    "dispatcher",
+    "listener",
+    "subscribe"
   ],
   "author": "DjoSmer",
   "license": "MIT",
